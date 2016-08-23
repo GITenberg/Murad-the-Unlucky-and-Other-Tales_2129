@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: GCfhq23HoNSR9Gbk3AOQyWKSUe1gS17eDt8/7rL8LtUYkjBlWNq/jxwPOC8xo+nJ/JoI6Wc9mMB8Nkhw0x+zOKG5uNtXUq4gende5aM8tW2zQRFgjZkyoycA4OatnG9Kf30y6Ug3Gvecbj2XG6tjMwVy/rT4mmH5Yb4xPh5BnkYdohShMtiJfJR9M+FPXE1WKZt+zkK825BjJHveyZ78TzBbh2/xzrfh/mlj2+pqvlKN3LY223txJPeCwinBYGT9UmZ0ePkgDruZ4VGYuBFyprd8dT9GsD7ZrzQQmVLEnd/Sw1B56mRLGJrDOSicj9mEiqlTz/Waw4lere1zGCAIN0qpGAQUt3leFLGWkHB7NQqMG5TY1EeNViltjWeGF+IGmRWNvJuKWzJ/wwWUk9ixcMI4nmffaeZ9f8adadWu6D2ta1JjjeEExErMjxl45T5Qcm1PcN7rNeWQvWDLNBb4bfD3VaLHnzD+V2bgljbIDzO8qdcaIdNuS1wTIh9fYTuZN1rdBqK6nQQxIO77cRSMPnaEJdMO/XTyRAgAGHVspx2l5169jdg1/poJH+Kzf4C65drFrUbSG1crqTpWF5/QSF0cGc+nIbM7M+Z34hSSsd2TmZRB5RyilVAj9N4fDNd8tmrT5FgTa6Rigz33AnXW8d7eV4MuYnIOzdXQTxSpvfI=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Murad-the-Unlucky-and-Other-Tales_2129
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
